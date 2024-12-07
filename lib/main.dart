@@ -92,10 +92,6 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
           onTap: (tapPosition, point) {
             _addMarker(point);
           },
-          // ズーム操作のイベントをキャッチ
-          onPositionChanged: (position, hasGesture) {
-            print("Zoom level: ${position.zoom}");
-          },
         ),
         children: [
           TileLayer(
