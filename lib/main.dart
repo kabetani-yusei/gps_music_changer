@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_animations/flutter_map_animations.dart';
 import 'package:latlong2/latlong.dart';
 
 void main() {
@@ -16,7 +17,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.amber,
       ),
-      home: const MyHomePage(title: 'flutter_map 拡大縮小ボタン'),
+      home: const MyHomePage(title: 'flutter_mapテスト'),
     );
   }
 }
@@ -30,25 +31,47 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  late final MapController _mapController = MapController();
-  double _zoom = 13.0; // 初期ズームレベル
-  LatLng _center = LatLng(35.170915, 136.881537); // 初期中心座標
+class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
+  List<Marker> addMarkers = [];
+  // MapControllerのインスタンス作成
+  late final _animatedMapController = AnimatedMapController(vsync: this);
 
-  // ズームインの処理
-  void _zoomIn() {
+  void _addMarker(LatLng latlng) {
     setState(() {
-      _zoom = (_zoom + 1).clamp(8.0, 18.0); // ズームイン
-      _mapController.move(_center, _zoom);
+      addMarkers.add(
+        Marker(
+          width: 30.0,
+          height: 30.0,
+          point: latlng,
+          child: GestureDetector(
+            onTap: () {
+              _animatedMapController.animateTo(dest: latlng);
+            },
+            child: const Icon(
+              Icons.location_on,
+              color: Colors.blue,
+              size: 50,
+            ),
+          ),
+        ),
+      );
     });
   }
 
-  // ズームアウトの処理
-  void _zoomOut() {
-    setState(() {
-      _zoom = (_zoom - 1).clamp(8.0, 18.0); // ズームアウト
-      _mapController.move(_center, _zoom);
-    });
+  void _showAlert(LatLng latlng) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('ピンの位置'),
+        content: Text('緯度: ${latlng.latitude}, 経度: ${latlng.longitude}'),
+        actions: <Widget>[
+          TextButton(
+            child: const Text('閉じる'),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -58,64 +81,56 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Colors.white,
         title: Text(widget.title),
       ),
-      body: Stack(
+      body: FlutterMap(
+        // mapControllerをFlutterMapに指定
+        mapController: _animatedMapController.mapController,
+        options: MapOptions(
+          initialCenter: const LatLng(35.170915, 136.881537),
+          initialZoom: 14.0,
+          maxZoom: 14.0,
+          minZoom: 14.0,
+          onTap: (tapPosition, point) {
+            _addMarker(point);
+          },
+        ),
         children: [
-          FlutterMap(
-            mapController: _mapController,
-            options: MapOptions(
-              crs: Epsg3857(),
-              initialCenter: _center,  // 初期中心座標
-              initialZoom: _zoom,      // 初期ズームレベル
-              maxZoom: 18.0,          // 最大ズーム
-              minZoom: 8.0,           // 最小ズーム
-              onTap: (tapPosition, point) {
-                setState(() {
-                  _center = point;  // タップした場所を中心に設定
-                  _mapController.move(point, _zoom); // 中心とズームレベルを更新
-                });
-              },
-            ),
-            children: [
-              TileLayer(
-                urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-              ),
-              MarkerLayer(
-                markers: [
-                  Marker(
-                    width: 30.0,
-                    height: 30.0,
-                    point: _center,
-                    child: const Icon(
-                      Icons.location_on,
-                      color: Colors.red,
-                      size: 50,
-                    ),
-                  ),
-                ],
-              ),
+          TileLayer(
+            urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+          ),
+          const MarkerLayer(
+            markers: [
+              Marker(
+                width: 30.0,
+                height: 30.0,
+                point: LatLng(35.170915, 136.881537), // ピンの位置を設定
+                child: Icon(
+                  Icons.location_on,
+                  color: Colors.red,
+                  size: 50,
+                ),
+                rotate: true,
+              )
             ],
           ),
-          Positioned(
-            right: 10,
-            top: 80,
-            child: Column(
-              children: [
-                FloatingActionButton(
-                  onPressed: _zoomIn,
-                  child: const Icon(Icons.zoom_in),
-                  heroTag: null, // HeroTagのエラー防止
-                ),
-                const SizedBox(height: 10),
-                FloatingActionButton(
-                  onPressed: _zoomOut,
-                  child: const Icon(Icons.zoom_out),
-                  heroTag: null, // HeroTagのエラー防止
-                ),
-              ],
-            ),
+          MarkerLayer(markers: addMarkers),
+          PolylineLayer(
+            polylines: [
+              Polyline(
+                points: [
+                  const LatLng(35.1, 136.85),
+                  const LatLng(35.2, 136.80),
+                  const LatLng(35.3, 136.89),
+                  const LatLng(35.4, 136.82),
+                ],
+                strokeWidth: 16.0,
+                color: Colors.black,
+              ),
+            ],
           ),
         ],
       ),
     );
   }
 }
+
+
