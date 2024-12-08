@@ -1,0 +1,18 @@
+  import 'package:flutter/material.dart';
+    
+    class MyImages {
+    
+    Image m1 = Image.network('https://drive.google.com/file/d/1OU8EUhP3IyOZyhMIOeNLc4ugOmM74RAE/view?usp=drive_link');
+    Image m2 = Image.network('https://drive.google.com/file/d/1QEixqjgfXiJPIijVF6ezVIJlVFpu9SuR/view?usp=drive_link');
+    Image m3 = Image.network('https://drive.google.com/file/d/1H_1dHpIRZ7ayT8Z2NDiP_V7ZzihHsNIR/view?usp=drive_link');
+    Image m4 = Image.network('https://drive.google.com/file/d/1_KAEmNncDiMaf59iwLF9E-sJ49TzBcET/view?usp=drive_link');
+    Image m5 = Image.network('https://drive.google.com/file/d/1w_FmdjuRiCdDFR9ld9Jdz7NZHUi5cHdU/view?usp=drive_link');
+    Image m6 = Image.network('https://drive.google.com/file/d/17Jvr4XCxEroMof1bhDm7mXRXOjLDVaaw/view?usp=drive_link');
+    Image m7 = Image.network('https://drive.google.com/file/d/1m5D9S-DCRpp6jfi7vYR3PheUd1TCj1nY/view?usp=drive_link);
+    Image m8 = Image.network('https://drive.google.com/file/d/1geFCBj4DVVBn76s75mXMnLyh_pOcykjv/view?usp=drive_link');
+    Image m9 = Image.network('https://drive.google.com/file/d/17I4p2AzGN5mM1mOB-3iec2VYDUANse_T/view?usp=drive_link');
+    Image m10 = Image.network('https://drive.google.com/file/d/1mN5l9j-RkF4b3LM7XchwSIPlKAyZ-7zr/view?usp=drive_link');
+    Image m11 = Image.network('https://drive.google.com/file/d/1icJCKf1lf7G6mntFTXnknhcZgeQnJELl/view?usp=drive_link');
+    Image m12 = Image.network('https://drive.google.com/file/d/1KIs6siw6eOZjVCZFTOc1d4wm65G5CTxJ/view?usp=drive_link');
+  
+  }
