@@ -16,6 +16,12 @@ dependencies:
   flutter_riverpod: ^2.6.1
 
   cupertino_icons: ^1.0.8
+  flutter_map: ^7.0.2
+  latlong2: ^0.9.1
+  geocoding: ^3.0.0
+  geolocator: ^13.0.2
+  flutter_map_animations: ^0.8.0
+  audioplayers: ^5.0.0
 
 dev_dependencies:
   flutter_test:
@@ -26,7 +32,8 @@ dev_dependencies:
 
 flutter:
   assets:
-    -assets/images/
+    - assets/images/
+    - assets/audio/RPG_Battle_01.mp3
 
 
   uses-material-design: true
