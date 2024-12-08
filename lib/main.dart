@@ -47,7 +47,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
             point: blueMarkerPosition,
             child: const Icon(
               Icons.circle,
-              color: Colors.white,
+              color: Colors.black,
               size: 10,
             ),
           ),
@@ -55,7 +55,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
 
         // 青丸の位置を北方向に更新
         blueMarkerPosition = LatLng(
-          blueMarkerPosition.latitude + 0.001, // 緯度を少しずつ増加
+          blueMarkerPosition.latitude + 0.0002, // 緯度を少しずつ増加
           blueMarkerPosition.longitude,
         );
       });
@@ -72,7 +72,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.yellow,
+        backgroundColor: Colors.white,
         title: Text(widget.title),
       ),
       body: FlutterMap(
