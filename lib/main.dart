@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map_animations/flutter_map_animations.dart';
 import 'package:latlong2/latlong.dart';
+import 'dart:async';
 
 void main() {
   runApp(const MyApp());
@@ -32,98 +32,85 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
-  List<Marker> addMarkers = [];
-  // MapControllerのインスタンス作成
-  late final _animatedMapController = AnimatedMapController(vsync: this);
+  List<Marker> trailMarkers = []; // 通過した地点を保存するリスト
+  LatLng blueMarkerPosition = const LatLng(35.170915, 136.881537); // 青丸の初期位置
+  Timer? _timer;
 
-  void _addMarker(LatLng latlng) {
-    setState(() {
-      addMarkers.add(
-        Marker(
-          width: 30.0,
-          height: 30.0,
-          point: latlng,
-          child: GestureDetector(
-            onTap: () {
-              _animatedMapController.animateTo(dest: latlng);
-            },
+  void _startMovingBlueMarker() {
+    _timer ??= Timer.periodic(const Duration(seconds: 1), (timer) {
+      setState(() {
+        // 青丸の現在位置を通過地点リストに追加
+        trailMarkers.add(
+          Marker(
+            width: 15.0,
+            height: 15.0,
+            point: blueMarkerPosition,
             child: const Icon(
-              Icons.location_on,
-              color: Colors.blue,
-              size: 50,
+              Icons.circle,
+              color: Colors.white,
+              size: 10,
             ),
           ),
-        ),
-      );
+        );
+
+        // 青丸の位置を北方向に更新
+        blueMarkerPosition = LatLng(
+          blueMarkerPosition.latitude + 0.001, // 緯度を少しずつ増加
+          blueMarkerPosition.longitude,
+        );
+      });
     });
   }
 
-  void _showAlert(LatLng latlng) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('ピンの位置'),
-        content: Text('緯度: ${latlng.latitude}, 経度: ${latlng.longitude}'),
-        actions: <Widget>[
-          TextButton(
-            child: const Text('閉じる'),
-            onPressed: () => Navigator.of(context).pop(),
-          ),
-        ],
-      ),
-    );
+  @override
+  void initState() {
+    super.initState();
+    _startMovingBlueMarker(); // 初期化時にタイマーを開始
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.yellow,
         title: Text(widget.title),
       ),
       body: FlutterMap(
-        // mapControllerをFlutterMapに指定
-        mapController: _animatedMapController.mapController,
         options: MapOptions(
           initialCenter: const LatLng(35.170915, 136.881537),
           initialZoom: 14.0,
-          maxZoom: 14.0,
-          minZoom: 14.0,
-          onTap: (tapPosition, point) {
-            _addMarker(point);
-          },
+          maxZoom: 18.0,
+          minZoom: 12.0,
         ),
         children: [
           TileLayer(
             urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
           ),
-          const MarkerLayer(
+          MarkerLayer(
             markers: [
-              Marker(
+              // 初期位置の赤いピン
+              const Marker(
                 width: 30.0,
                 height: 30.0,
-                point: LatLng(35.170915, 136.881537), // ピンの位置を設定
+                point: LatLng(35.170915, 136.881537),
                 child: Icon(
                   Icons.location_on,
                   color: Colors.red,
                   size: 50,
                 ),
-                rotate: true,
-              )
-            ],
-          ),
-          MarkerLayer(markers: addMarkers),
-          PolylineLayer(
-            polylines: [
-              Polyline(
-                points: [
-                  const LatLng(35.1, 136.85),
-                  const LatLng(35.2, 136.80),
-                  const LatLng(35.3, 136.89),
-                  const LatLng(35.4, 136.82),
-                ],
-                strokeWidth: 16.0,
-                color: Colors.black,
+              ),
+              // 通過地点の白丸
+              ...trailMarkers,
+              // 現在の青丸
+              Marker(
+                width: 30.0,
+                height: 30.0,
+                point: blueMarkerPosition,
+                child: const Icon(
+                  Icons.circle,
+                  color: Colors.blue,
+                  size: 20,
+                ),
               ),
             ],
           ),
@@ -132,5 +119,3 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     );
   }
 }
-
-
