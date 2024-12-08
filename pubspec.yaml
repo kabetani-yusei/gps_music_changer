@@ -40,6 +40,7 @@ dependencies:
   geocoding: ^3.0.0
   geolocator: ^13.0.2
   flutter_map_animations: ^0.8.0
+  audioplayers: ^5.0.0
 
 dev_dependencies:
   flutter_test:
@@ -62,6 +63,9 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+  assets:
+    - assets/audio/RPG_Battle_01.mp3
+
 
   # To add assets to your application, add an assets section, like this:
   # assets:
