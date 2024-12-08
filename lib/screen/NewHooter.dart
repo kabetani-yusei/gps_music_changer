@@ -32,17 +32,31 @@ class _NewFooterState extends State<NewFooter>
     return SizedBox(
       height: 100,
       child: Container(
-        color: MyColors.Rblue,
+        color: MyColors.RlightGrey,
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             // 左側の画像
             Image.asset(
-              'assets/images/nanika.png',
+              'assets/images/600x600bb-60.jpg',
               height: 80,
               width: 80,
               fit: BoxFit.cover,
+            ),
+
+            Expanded(
+              child: Container(
+                child: Container(
+                  margin: EdgeInsets.all(10),
+                child: Text(
+                    'Music 1',
+                  style: TextStyle(
+
+                  ),
+                ),
+              ),
+            ),
             ),
 
             // アニメーションアイコンボタン

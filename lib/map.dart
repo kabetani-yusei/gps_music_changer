@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'dart:async';
 
 void main() {
   runApp(const MyApp());
@@ -16,7 +17,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.amber,
       ),
-      home: const MyHomePage(title: 'flutter_map 拡大縮小ボタン'),
+      home: const MyHomePage(title: 'flutter_mapテスト'),
     );
   }
 }
@@ -30,25 +31,41 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  late final MapController _mapController = MapController();
-  double _zoom = 13.0; // 初期ズームレベル
-  LatLng _center = LatLng(35.170915, 136.881537); // 初期中心座標
+class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
+  List<Marker> trailMarkers = []; // 通過した地点を保存するリスト
+  LatLng blueMarkerPosition = const LatLng(35.170915, 136.881537); // 青丸の初期位置
+  Timer? _timer;
 
-  // ズームインの処理
-  void _zoomIn() {
-    setState(() {
-      _zoom = (_zoom + 1).clamp(8.0, 18.0); // ズームイン
-      _mapController.move(_center, _zoom);
+  void _startMovingBlueMarker() {
+    _timer ??= Timer.periodic(const Duration(seconds: 1), (timer) {
+      setState(() {
+        // 青丸の現在位置を通過地点リストに追加
+        trailMarkers.add(
+          Marker(
+            width: 15.0,
+            height: 15.0,
+            point: blueMarkerPosition,
+            child: const Icon(
+              Icons.circle,
+              color: Colors.black,
+              size: 10,
+            ),
+          ),
+        );
+
+        // 青丸の位置を北方向に更新
+        blueMarkerPosition = LatLng(
+          blueMarkerPosition.latitude + 0.0002, // 緯度を少しずつ増加
+          blueMarkerPosition.longitude,
+        );
+      });
     });
   }
 
-  // ズームアウトの処理
-  void _zoomOut() {
-    setState(() {
-      _zoom = (_zoom - 1).clamp(8.0, 18.0); // ズームアウト
-      _mapController.move(_center, _zoom);
-    });
+  @override
+  void initState() {
+    super.initState();
+    _startMovingBlueMarker(); // 初期化時にタイマーを開始
   }
 
   @override
@@ -58,61 +75,44 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Colors.white,
         title: Text(widget.title),
       ),
-      body: Stack(
+      body: FlutterMap(
+        options: MapOptions(
+          initialCenter: const LatLng(35.170915, 136.881537),
+          initialZoom: 14.0,
+          maxZoom: 18.0,
+          minZoom: 12.0,
+        ),
         children: [
-          FlutterMap(
-            mapController: _mapController,
-            options: MapOptions(
-              crs: Epsg3857(),
-              initialCenter: _center,  // 初期中心座標
-              initialZoom: _zoom,      // 初期ズームレベル
-              maxZoom: 18.0,          // 最大ズーム
-              minZoom: 8.0,           // 最小ズーム
-              onTap: (tapPosition, point) {
-                setState(() {
-                  _center = point;  // タップした場所を中心に設定
-                  _mapController.move(point, _zoom); // 中心とズームレベルを更新
-                });
-              },
-            ),
-            children: [
-              TileLayer(
-                urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+          TileLayer(
+            urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+          ),
+          MarkerLayer(
+            markers: [
+              // 初期位置の赤いピン
+              const Marker(
+                width: 30.0,
+                height: 30.0,
+                point: LatLng(35.170915, 136.881537),
+                child: Icon(
+                  Icons.location_on,
+                  color: Colors.red,
+                  size: 50,
+                ),
               ),
-              MarkerLayer(
-                markers: [
-                  Marker(
-                    width: 30.0,
-                    height: 30.0,
-                    point: _center,
-                    child: const Icon(
-                      Icons.location_on,
-                      color: Colors.red,
-                      size: 50,
-                    ),
-                  ),
-                ],
+              // 通過地点の白丸
+              ...trailMarkers,
+              // 現在の青丸
+              Marker(
+                width: 30.0,
+                height: 30.0,
+                point: blueMarkerPosition,
+                child: const Icon(
+                  Icons.circle,
+                  color: Colors.blue,
+                  size: 20,
+                ),
               ),
             ],
-          ),
-          Positioned(
-            right: 10,
-            top: 80,
-            child: Column(
-              children: [
-                FloatingActionButton(
-                  onPressed: _zoomIn,
-                  child: const Icon(Icons.zoom_in),
-                  heroTag: null, // HeroTagのエラー防止
-                ),
-                const SizedBox(height: 10),
-                FloatingActionButton(
-                  onPressed: _zoomOut,
-                  child: const Icon(Icons.zoom_out),
-                  heroTag: null, // HeroTagのエラー防止
-                ),
-              ],
-            ),
           ),
         ],
       ),
